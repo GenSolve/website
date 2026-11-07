@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://gensolve.in/" />
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <link rel="apple-touch-icon" href="/static/apple-touch-icon.png" />
-<meta name="theme-color" content="#060607" />
+<meta name="theme-color" content="#fafafa" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Gensolve" />
 <meta property="og:url" content="https://gensolve.in/" />
@@ -24,8 +24,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"Gensolve","url":"https://gensolve.in/","logo":"https://gensolve.in/static/favicon.svg","description":"Solving generational problems with generative ideas.","brand":[{"@type":"Brand","name":"NewVis AI"}]}
 </script>
-<script>/* apply the saved theme before first paint so there is no flash */
-try{if(localStorage.getItem('gs_theme')==='light'){document.documentElement.dataset.theme='light';document.querySelector('meta[name="theme-color"]').content='#fafafa'}}catch(e){}</script>
+<script>/* light by default; dark only if the visitor picked it. Runs before first paint so there is no flash */
+var gsDark=false;try{gsDark=localStorage.getItem('gs_theme')==='dark'}catch(e){}
+if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';else document.documentElement.dataset.theme='light';</script>
 <link rel="preload" href="/static/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/static/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
 <style>
@@ -40,7 +41,7 @@ try{if(localStorage.getItem('gs_theme')==='light'){document.documentElement.data
   @font-face{font-family:"Space Grotesk";src:url("/static/fonts/space-grotesk-latin.woff2") format("woff2");font-weight:300 700;font-style:normal;font-display:swap}
   @font-face{font-family:"Archivo";src:url("/static/fonts/archivo-latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
   :root{
-    --bg:#060607;--bg-2:#0c0c0f;--ink:#f4f4f5;--ink-soft:#a1a1aa;--ink-mute:#7a7a85;
+    --bg:#0b0e1c;--bg-2:#11152a;--ink:#f4f4f5;--ink-soft:#a1a1aa;--ink-mute:#7a7a85;
     --line:rgba(255,255,255,.09);--line-strong:rgba(255,255,255,.17);
     --card:rgba(255,255,255,.035);--card-2:rgba(255,255,255,.06);
     --g1:#8b6cff;--g2:#22d3ee;--g3:#5eead4;
@@ -149,6 +150,17 @@ try{if(localStorage.getItem('gs_theme')==='light'){document.documentElement.data
   .has-bg .hero::after{content:"";position:absolute;left:0;right:0;top:-72px;bottom:0;z-index:-1;pointer-events:none;
     background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 70%,transparent) 0%,color-mix(in srgb,var(--bg) 30%,transparent) 45%,transparent 70%)}
   @media(max-width:960px){.has-bg .hero::after{background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 25%,transparent),color-mix(in srgb,var(--bg) 55%,transparent) 60%,transparent)}}
+  /* hero effects (data-fx on the canvas, mirrored as body classes) */
+  .fx-lens .orb .field{background:radial-gradient(circle,color-mix(in srgb,var(--bg) 8%,transparent),color-mix(in srgb,var(--bg) 45%,transparent) 78%)}
+  .fx-lens .orb .field i{opacity:.45}
+  .fx-spot .hero::after{opacity:.75}
+  .lab .sep{width:1px;align-self:stretch;margin:6px 4px;background:var(--line-strong);padding:0}
+  /* light mode (dot-matrix): keep the dots out from under the nav and the headline copy */
+  html[data-theme="light"] .has-bg .hero::after{opacity:1;background:
+    linear-gradient(180deg,color-mix(in srgb,var(--bg) 92%,transparent) 0,transparent 96px),
+    linear-gradient(90deg,color-mix(in srgb,var(--bg) 93%,transparent) 0%,color-mix(in srgb,var(--bg) 80%,transparent) 42%,transparent 62%)}
+  @media(max-width:960px){html[data-theme="light"] .has-bg .hero::after{background:
+    linear-gradient(180deg,color-mix(in srgb,var(--bg) 92%,transparent) 0,color-mix(in srgb,var(--bg) 82%,transparent) 55%,transparent 80%)}}
   /* preview-only style switcher (?lab) */
   .lab{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:90;display:flex;gap:4px;padding:5px;border-radius:16px;
     background:color-mix(in srgb,var(--bg) 82%,transparent);border:1px solid var(--line-strong);box-shadow:var(--shadow);
@@ -582,7 +594,7 @@ try{if(localStorage.getItem('gs_theme')==='light'){document.documentElement.data
     var next = root.dataset.theme === 'light' ? 'dark' : 'light';
     var apply = function(){
       if (next === 'light') root.dataset.theme = 'light'; else delete root.dataset.theme;
-      if (meta) meta.content = next === 'light' ? '#fafafa' : '#060607';
+      if (meta) meta.content = next === 'light' ? '#fafafa' : '#0b0e1c';
       try { localStorage.setItem('gs_theme', next); } catch (e) {}
       sync();
     };
@@ -595,20 +607,33 @@ try{if(localStorage.getItem('gs_theme')==='light'){document.documentElement.data
 (function(){
   var q = new URLSearchParams(location.search), canvas = document.querySelector('canvas.hero-bg');
   if (!canvas) return;
-  var styles = ['liquid','aurora','contour','mesh'], pick = q.get('bg');
-  canvas.dataset.style = styles.indexOf(pick) >= 0 ? pick : 'liquid';
+  var styles = ['liquid','aurora','contour','mesh','network','dots','ribbons','beams'], pick = q.get('bg');
+  var themeStyle = function(){ return document.documentElement.dataset.theme === 'light' ? 'dots' : 'liquid'; };
+  var forced = styles.indexOf(pick) >= 0;
+  canvas.dataset.style = forced ? pick : themeStyle();
+  if (!forced) new MutationObserver(function(){ if (window.GensolveBg && canvas.classList.contains('on')) window.GensolveBg.set(themeStyle()); })
+    .observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
   document.body.classList.add('has-bg');
+  var FX = ['chrome','stir','lens','spot'], fxOn = (q.get('fx') || canvas.dataset.fx || '').split(',').filter(function(n){ return FX.indexOf(n) >= 0; });
+  var applyFx = function(){ canvas.dataset.fx = fxOn.join(','); FX.forEach(function(n){ document.body.classList.toggle('fx-' + n, fxOn.indexOf(n) >= 0); });
+    if (window.GensolveBg) window.GensolveBg.fx(canvas.dataset.fx); };
+  applyFx();
   var s = document.createElement('script'); s.src = '/static/hero-bg.js';
   s.onload = function(){
+    applyFx();
     if (!q.has('lab')) return;
     var bar = document.createElement('div'); bar.className = 'lab'; bar.setAttribute('role', 'group'); bar.setAttribute('aria-label', 'Background style');
     bar.innerHTML = '<span>Background</span>' + ['off'].concat(styles).map(function(n){
-      return '<button type="button" data-s="' + n + '">' + n.charAt(0).toUpperCase() + n.slice(1) + '</button>'; }).join('');
+      return '<button type="button" data-s="' + n + '">' + n.charAt(0).toUpperCase() + n.slice(1) + '</button>'; }).join('')
+      + '<i class="sep"></i><span>Hero</span>' + FX.map(function(n){
+      return '<button type="button" data-fx="' + n + '" aria-pressed="' + (fxOn.indexOf(n) >= 0) + '">' + (n === 'spot' ? 'Spotlight' : n.charAt(0).toUpperCase() + n.slice(1)) + '</button>'; }).join('');
     document.body.appendChild(bar);
-    var mark = function(n){ bar.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.s === n ? 'true' : 'false'); }); };
+    var mark = function(n){ bar.querySelectorAll('button[data-s]').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.s === n ? 'true' : 'false'); }); };
     mark(canvas.dataset.style);
     bar.addEventListener('click', function(e){
       var b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.fx) { var f = b.dataset.fx, at = fxOn.indexOf(f); if (at >= 0) fxOn.splice(at, 1); else fxOn.push(f);
+        b.setAttribute('aria-pressed', at < 0 ? 'true' : 'false'); applyFx(); return; }
       var n = b.dataset.s;
       if (n === 'off') { canvas.classList.remove('on'); document.body.classList.remove('has-bg'); }
       else { document.body.classList.add('has-bg'); window.GensolveBg && window.GensolveBg.set(n); }

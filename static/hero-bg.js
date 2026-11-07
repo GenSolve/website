@@ -20,7 +20,7 @@
   var coarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
   var FRAME_MS = coarse ? 1000 / 30 : 1000 / 60;
   if (/[?&]uncapped/.test(location.search)) FRAME_MS = 0;   // recording only: draw every display frame
-  var SCALE = { liquid: 0.5, aurora: 0.5, mesh: 0.4, contour: 0.85 };
+  var SCALE = { liquid: 0.5, aurora: 0.5, mesh: 0.4, contour: 0.85, network: 0.8, dots: 1, ribbons: 0.6, beams: 0.45 };
 
   var VERT = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
 
@@ -44,23 +44,50 @@
     'float hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}',
     // shared finish: blend the art over the page background, soft vignette and film grain
     'vec3 finish(vec3 col,vec2 uv){float vig=smoothstep(1.25,.25,length((uv-.5)*vec2(1.1,1.3)));',
-    'col=mix(uBg,col,vig);col=mix(col,uBg,uDim);col+=(hash(uv*uRes+fract(uTime))-.5)*(uLight>.5?.012:.02);return col;}'
+    'if(uLight<.5)col=uBg+(col-uBg)*1.25;col=mix(uBg,col,vig);col=mix(col,uBg,uDim);col+=(hash(uv*uRes+fract(uTime))-.5)*(uLight>.5?.012:.02);return col;}'
   ].join('\n');
 
   var FRAG = {
-    // 1. LIQUID — domain-warped noise: silky ink-in-water flow
+    // 1. LIQUID — domain-warped noise: silky ink-in-water flow, plus optional hero effects (uFx):
+    //    x = chrome (glossy light on the surface), y = stir (cursor swirls the liquid),
+    //    z = lens (the orb magnifies what's behind it), w = spotlight (light pooled on the headline).
+    //    Every effect is scaled by `hero`, so it fades away as the hero scrolls off.
     liquid: [
-      'void main(){vec2 uv=gl_FragCoord.xy/uRes;vec2 p=(uv-.5)*vec2(uRes.x/uRes.y,1.)*.85;',
-      'float t=uTime*.05+uScroll*.00035;p+=(uMouse-.5)*.18;p.y-=uScroll*.00012;',
-      'vec2 q=vec2(fbm3(p+vec2(0.,t)),fbm3(p+vec2(5.2,1.3)-t));',
-      'vec2 r=vec2(fbm3(p+1.7*q+vec2(1.7,9.2)+.6*t),fbm3(p+1.7*q+vec2(8.3,2.8)-.5*t));',
-      'float f=fbm3(p+1.6*r);',
+      'uniform vec4 uFx;uniform float uVel;uniform vec3 uLens;uniform vec2 uSpot;',
+      'float field(vec2 p,float t,out vec2 q,out vec2 r){',
+      'q=vec2(fbm3(p+vec2(0.,t)),fbm3(p+vec2(5.2,1.3)-t));',
+      'r=vec2(fbm3(p+1.7*q+vec2(1.7,9.2)+.6*t),fbm3(p+1.7*q+vec2(8.3,2.8)-.5*t));',
+      'return fbm3(p+1.6*r);}',
+      'void main(){vec2 uv=gl_FragCoord.xy/uRes;vec2 asp=vec2(uRes.x/uRes.y,1.);vec2 p=(uv-.5)*asp*.85;',
+      'float t=uTime*.05+uScroll*.00035;p.y-=uScroll*.00012;',
+      'float hero=1.-clamp(uDim/.55,0.,1.);',
+      // stir: a soft vortex around the cursor, stronger the faster it moves
+      'vec2 m=(uMouse-.5)*asp*.85;vec2 d=p-m;float k=exp(-dot(d,d)*7.)*uFx.y*hero;float a=k*(.9+2.6*uVel);',
+      'p=m+mat2(cos(a),-sin(a),sin(a),cos(a))*d;p+=d*sin(length(d)*28.-uTime*3.)*.012*k*uVel;',
+      'if(uFx.y<.5)p+=(uMouse-.5)*.18;',
+      // lens: magnify the liquid inside the orb
+      'vec2 lc=(uLens.xy-.5)*asp*.85;float lr=uLens.z*.85;float ld=length(p-lc);',
+      'float inL=uFx.z*hero*(1.-smoothstep(lr*.96,lr,ld));',
+      'if(inL>0.){float s=ld/lr;p=mix(p,lc+(p-lc)*(.45+.55*s*s),inL);}',
+      'vec2 q,r;float f=field(p,t,q,r);',
       'vec3 col=uBg;',
       'col=mix(col,uC1,smoothstep(-.15,.75,f)*.8);',
       'col=mix(col,uC2,smoothstep(.1,.95,length(q))*.85);',
       'col=mix(col,uC3,smoothstep(.3,1.05,r.x)*.6);',
       'float lift=uLight>.5?.05:.24;col=mix(uBg,col,.6+lift+.25*smoothstep(-.4,.8,f));',
       'col+=uC2*.06*smoothstep(.2,1.,length(r))*(uLight>.5?0.:1.);',
+      // chrome: treat the field as a height map and light it like polished liquid metal
+      'float ch=uFx.x*hero;if(ch>0.){float e=.02;vec2 q2,r2;',
+      'float fx=field(p+vec2(e,0.),t,q2,r2);float fy=field(p+vec2(0.,e),t,q2,r2);',
+      'vec3 n=normalize(vec3(-(fx-f)/e*.28,-(fy-f)/e*.28,1.));vec3 L=normalize(vec3(uMouse.x-.35,uMouse.y-.2,.85));',
+      'float diff=dot(n,L);float spec=pow(max(dot(reflect(-L,n),vec3(0.,0.,1.)),0.),36.);float fres=pow(1.-n.z,1.5);',
+      'col*=mix(1.,.62+.7*diff,ch);',
+      'col+=mix(uC2,vec3(1.),.6)*spec*(uLight>.5?.55:1.45)*ch+mix(uC1,uC3,fres)*fres*.45*ch;}',
+      // lens rim: a thin bright edge where the glass would be
+      'if(uFx.z>0.){col+=mix(uC2,vec3(1.),.4)*smoothstep(.012,0.,abs(ld-lr))*uFx.z*hero*.6;}',
+      // spotlight: pool the light around the headline, darken the edges
+      'if(uFx.w>0.){vec2 sd=(uv-uSpot)*asp;float sp=exp(-dot(sd,sd)*2.2);float w=uFx.w*hero;',
+      'col=uLight>.5?mix(col,mix(uBg,col,.55),(1.-sp)*w*.7):col*mix(1.,.5+.55*sp,w);}',
       'gl_FragColor=vec4(finish(col,uv),1.);}'
     ].join('\n'),
 
@@ -73,7 +100,7 @@
       'void main(){vec2 uv=gl_FragCoord.xy/uRes;uv.x=uv.x*uRes.x/uRes.y*.6+(uMouse.x-.5)*.08;',
       'float a=curtain(uv,0.,.10,.70),b=curtain(uv,3.7,.08,.60),c=curtain(uv,8.1,.12,.78);',
       'vec3 glow=uC1*a+uC2*b*1.1+uC3*c*.8;',
-      'float k=uLight>.5?.75:1.1;vec3 col=uLight>.5?mix(uBg,uBg-glow*.55,1.):uBg+glow*k;',
+      'float k=uLight>.5?.75:1.1;vec3 col=uLight>.5?mix(uBg,glow/max(max(glow.r,glow.g),max(glow.b,.001))*.85,clamp(length(glow),0.,1.)*.7):uBg+glow*k;',
       'col+=uC2*.04*smoothstep(.3,1.,uv.y);',
       'gl_FragColor=vec4(finish(col,gl_FragCoord.xy/uRes),1.);}'
     ].join('\n'),
@@ -104,6 +131,69 @@
       'g+=blob(p,(uMouse-.5)*vec2(uRes.x/uRes.y,1.),.28,mix(uC2,uC1,.5))*.5;',
       'vec3 col=uLight>.5?mix(uBg,uBg*.55+g*.6,clamp(length(g),0.,1.)*.75):uBg+g*.62;',
       'gl_FragColor=vec4(finish(col,uv),1.);}'
+    ].join('\n'),
+    // 5. NETWORK — drifting nodes that link up when close: "AI" at a glance
+    network: [
+      'vec2 rnd2(vec2 c){return fract(sin(vec2(dot(c,vec2(127.1,311.7)),dot(c,vec2(269.5,183.3))))*43758.5453);}',
+      'vec2 node(vec2 c,float t){vec2 r=rnd2(c);return c+.5+.36*vec2(sin(t*.55+r.x*6.283),cos(t*.47+r.y*6.283));}',
+      'float seg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h);}',
+      'void main(){vec2 uv=gl_FragCoord.xy/uRes;vec2 asp=vec2(uRes.x/uRes.y,1.);float S=6.5;',
+      'vec2 p=(uv-.5)*asp*S;p.y-=uScroll*.0016;float t=uTime;vec2 m=(uMouse-.5)*asp*S;',
+      'vec2 cell=floor(p);float lines=0.,dots=0.;',
+      'for(int i=-1;i<=1;i++)for(int j=-1;j<=1;j++){vec2 c=cell+vec2(float(i),float(j));vec2 a=node(c,t);',
+      'dots+=smoothstep(.075,.03,length(p-a));',
+      'vec2 b1=node(c+vec2(1.,0.),t),b2=node(c+vec2(0.,1.),t),b3=node(c+vec2(1.,1.),t),b4=node(c+vec2(1.,-1.),t);',
+      'lines+=smoothstep(1.3,.55,length(a-b1))*smoothstep(.022,.0,seg(p,a,b1));',
+      'lines+=smoothstep(1.3,.55,length(a-b2))*smoothstep(.022,.0,seg(p,a,b2));',
+      'lines+=smoothstep(1.3,.55,length(a-b3))*smoothstep(.022,.0,seg(p,a,b3));',
+      'lines+=smoothstep(1.3,.55,length(a-b4))*smoothstep(.022,.0,seg(p,a,b4));}',
+      'float near=exp(-dot(p-m,p-m)*.12);',
+      'vec3 tint=mix(mix(uC1,uC2,smoothstep(-.4,.6,uv.x-.2*uv.y)),uC3,smoothstep(.55,1.,uv.y)*.6);',
+      'float glow=lines*(.32+.8*near)+dots*(.75+.6*near);',
+      'vec3 col=uLight>.5?mix(uBg,tint*.8,clamp(glow,0.,1.)*.75):uBg+tint*glow+tint*.04*(1.-uv.y)+tint*.06*near;',
+      'gl_FragColor=vec4(finish(col,uv),1.);}'
+    ].join('\n'),
+
+    // 6. DOTS — a dot matrix rippling like a landscape (clean "serious tech" look)
+    dots: [
+      'void main(){vec2 uv=gl_FragCoord.xy/uRes;float N=46.;vec2 q=gl_FragCoord.xy/uRes.y*N;q.y+=uScroll*.012;',
+      'vec2 cell=floor(q);vec2 f=fract(q)-.5;float t=uTime*.12;',
+      'float h=snoise(cell*.075+vec2(t,t*.7))*.6+snoise(cell*.19-vec2(t*1.3,0.))*.4;h=h*.5+.5;',
+      'vec2 m=uMouse*vec2(uRes.x/uRes.y,1.)*N;float md=length(cell-m)/N;',
+      'h+=.32*sin(md*34.-uTime*2.6)*exp(-md*5.);h=clamp(h,0.,1.);',
+      'float rad=.07+.27*h;float dt=1.-smoothstep(rad-.06,rad,length(f));',
+      'vec3 tint=mix(mix(uC1,uC2,h),uC3,smoothstep(.75,1.,h));',
+      'float b=dt*(.12+.72*h*h);',
+      'vec3 col=uLight>.5?mix(uBg,tint*.8,b*.8):uBg+tint*b;',
+      'gl_FragColor=vec4(finish(col,uv),1.);}'
+    ].join('\n'),
+
+    // 7. RIBBONS — a few glowing silk ribbons flowing across the screen
+    ribbons: [
+      'void main(){vec2 uv=gl_FragCoord.xy/uRes;float x=uv.x*uRes.x/uRes.y;float t=uTime*.18+uScroll*.0004;',
+      'vec3 acc=vec3(0.);',
+      'for(int k=0;k<5;k++){float fk=float(k);',
+      'vec3 c=fk<1.5?uC1:(fk<3.5?uC2:uC3);',
+      'for(int s=0;s<4;s++){float fs=float(s);',
+      'float y=.5+.2*sin(x*1.15+t*1.7+fk*1.25)+.09*snoise(vec2(x*.9+fk*3.1,t+fk))+(fk-2.)*.075+fs*.009*(1.+.5*sin(x*2.+t+fk));',
+      'y+=(uMouse.y-.5)*.06*exp(-pow(x-uMouse.x*uRes.x/uRes.y,2.)*2.);',
+      'float d=uv.y-y;acc+=c*(exp(-d*d*9000.)*.55+exp(-d*d*420.)*.06);}}',
+      'vec3 col=uLight>.5?mix(uBg,acc/max(max(acc.r,acc.g),max(acc.b,.001))*.8,clamp(length(acc),0.,1.)*.75):uBg+acc*1.1;',
+      'gl_FragColor=vec4(finish(col,uv),1.);}'
+    ].join('\n'),
+
+    // 8. BEAMS — soft spotlights sweeping a dark stage, with dusty haze
+    beams: [
+      'void main(){vec2 uv=gl_FragCoord.xy/uRes;vec2 asp=vec2(uRes.x/uRes.y,1.);float t=uTime*.25;',
+      'float haze=fbm3(uv*asp*2.2+vec2(t*.2,-t*.1))*.5+.5;vec3 acc=vec3(0.);',
+      'for(int k=0;k<4;k++){float fk=float(k);vec3 c=fk<.5?uC1:(fk<1.5?uC2:(fk<2.5?uC3:uC2));',
+      'vec2 o=vec2((.12+.27*fk)*asp.x,1.15);vec2 v=uv*asp-o;',
+      'float ang=atan(v.x,-v.y)-(.38*sin(t*.9+fk*1.9)+(uMouse.x-.5)*.25);',
+      'float beam=exp(-ang*ang*55.)*smoothstep(1.7,.15,length(v));',
+      'acc+=c*beam*(.45+.75*haze);}',
+      'acc+=uC2*.05*haze*smoothstep(.0,.6,uv.y);',
+      'vec3 col=uLight>.5?mix(uBg,acc/max(max(acc.r,acc.g),max(acc.b,.001))*.85,clamp(length(acc),0.,1.)*.6):uBg+acc*.95;',
+      'gl_FragColor=vec4(finish(col,uv),1.);}'
     ].join('\n')
   };
 
@@ -129,7 +219,7 @@
     if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { console.warn(gl.getProgramInfoLog(pr)); return false; }
     if (program) gl.deleteProgram(program);
     program = pr; gl.useProgram(pr);
-    ['uRes', 'uTime', 'uMouse', 'uLight', 'uDim', 'uScroll', 'uC1', 'uC2', 'uC3', 'uBg'].forEach(function (n) { loc[n] = gl.getUniformLocation(pr, n); });
+    ['uRes', 'uTime', 'uMouse', 'uLight', 'uDim', 'uScroll', 'uFx', 'uVel', 'uLens', 'uSpot', 'uC1', 'uC2', 'uC3', 'uBg'].forEach(function (n) { loc[n] = gl.getUniformLocation(pr, n); });
     var a = gl.getAttribLocation(pr, 'p');
     gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
     style = name; colours(); resize(); return true;
@@ -160,7 +250,18 @@
   }
 
   var mx = .5, my = .5, tx = .5, ty = .5;
-  window.addEventListener('pointermove', function (e) { tx = e.clientX / innerWidth; ty = 1 - e.clientY / innerHeight; }, { passive: true });
+  var vel = 0, lastPX = -1, lastPY = -1, lastPT = 0;
+  window.addEventListener('pointermove', function (e) {
+    tx = e.clientX / innerWidth; ty = 1 - e.clientY / innerHeight;
+    var now = performance.now();
+    if (lastPX >= 0) { var dt = Math.max(now - lastPT, 8), sp = Math.hypot(e.clientX - lastPX, e.clientY - lastPY) / dt; vel = Math.min(1, vel * .7 + sp * .25); }
+    lastPX = e.clientX; lastPY = e.clientY; lastPT = now;
+  }, { passive: true });
+  // hero effects, from data-fx="chrome,stir,lens,spot"
+  var fx = [0, 0, 0, 0], FX = ['chrome', 'stir', 'lens', 'spot'];
+  function readFx() { var list = (canvas.dataset.fx || '').split(','); fx = FX.map(function (n) { return list.indexOf(n) >= 0 ? 1 : 0; }); }
+  readFx();
+  var orbField = document.querySelector('.orb .field'), headline = document.querySelector('.hero h1');
 
   var hero = document.querySelector('.hero');
   var t0 = performance.now(), last = 0, running = false, visible = true;
@@ -173,6 +274,11 @@
     var k = Math.min(Math.max((y - heroH * .25) / (heroH * .75), 0), 1);
     gl.uniform1f(loc.uDim, k * k * (3 - 2 * k) * .55);
     gl.uniform1f(loc.uScroll, y);
+    vel *= .95;
+    gl.uniform4f(loc.uFx, fx[0], fx[1], fx[2], fx[3]);
+    gl.uniform1f(loc.uVel, vel);
+    if (fx[2] && orbField) { var o = orbField.getBoundingClientRect(); gl.uniform3f(loc.uLens, (o.left + o.width / 2) / innerWidth, 1 - (o.top + o.height / 2) / innerHeight, (o.width / 2) / innerHeight); }
+    if (fx[3] && headline) { var hr = headline.getBoundingClientRect(); gl.uniform2f(loc.uSpot, (hr.right + hr.width * .15) / innerWidth, 1 - (hr.top + hr.height * .55) / innerHeight); }
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
   function loop(now) {
@@ -194,6 +300,7 @@
 
   // public hook for the style switcher in preview mode
   window.GensolveBg = {
+    fx: function (list) { canvas.dataset.fx = list; readFx(); if (!running && program) draw(performance.now()); },
     set: function (name) {
       if (!FRAG[name]) return;
       canvas.dataset.style = name; build(name); canvas.classList.add('on'); draw(performance.now()); sync();

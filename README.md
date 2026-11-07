@@ -48,7 +48,9 @@ NewVis site locally the product link works end to end. On the live site they poi
 
 ## Design and performance notes
 
-- Dark and light themes, switched with the sun/moon button; the choice is remembered.
+- Light theme by default, dark on request (sun/moon button; the choice is remembered).
+- Live WebGL background (`static/hero-bg.js`), one per theme: **dot-matrix** in light, **liquid** in dark.
+  Other styles can be previewed with `?bg=aurora|contour|mesh|network|ribbons|beams` or `?lab`.
 - Only `transform` and `opacity` are animated, so motion stays smooth on phones. The hero orb
   pauses when it's off screen or the tab is hidden, and all motion is off for visitors who turn on
   "reduce motion".
