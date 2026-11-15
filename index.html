@@ -161,6 +161,43 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
     linear-gradient(90deg,color-mix(in srgb,var(--bg) 93%,transparent) 0%,color-mix(in srgb,var(--bg) 80%,transparent) 42%,transparent 62%)}
   @media(max-width:960px){html[data-theme="light"] .has-bg .hero::after{background:
     linear-gradient(180deg,color-mix(in srgb,var(--bg) 92%,transparent) 0,color-mix(in srgb,var(--bg) 82%,transparent) 55%,transparent 80%)}}
+  /* ================= light mode polish ================= */
+  html[data-theme="light"]{--line:rgba(15,23,42,.1);--line-strong:rgba(15,23,42,.18)}
+  /* cards: solid white panels with a crisp edge and a soft lift, so they stand off the dotted background */
+  html[data-theme="light"] .has-bg .card,html[data-theme="light"] .card{background:#fff;border-color:rgba(15,23,42,.1);
+    box-shadow:0 1px 2px rgba(15,23,42,.05),0 10px 30px -18px rgba(15,23,42,.22)}
+  html[data-theme="light"] .card:hover{border-color:rgba(15,23,42,.2);
+    box-shadow:0 1px 2px rgba(15,23,42,.06),0 22px 44px -22px rgba(15,23,42,.3)}
+  /* a thin brand-gradient hairline across the top of each card */
+  html[data-theme="light"] .card::before{content:"";position:absolute;left:18px;right:18px;top:-1px;height:2px;border-radius:2px;
+    background:var(--grad);opacity:.55;transition:opacity .3s ease}
+  html[data-theme="light"] .card:hover::before{opacity:1}
+  html[data-theme="light"] .soon::before,html[data-theme="light"] .feature::before{display:none}
+  /* coming-soon placeholders: clearly dashed, slightly recessed */
+  html[data-theme="light"] .has-bg .soon{background:rgba(248,250,252,.92);border:1.5px dashed rgba(15,23,42,.22);box-shadow:none}
+  html[data-theme="light"] .has-bg .soon:hover{transform:none;box-shadow:none}
+  /* icon chips, badges and pills get real edges */
+  html[data-theme="light"] .build .ico{background:#f6f7fb;border-color:rgba(15,23,42,.12)}
+  html[data-theme="light"] .badge{border-color:rgba(15,23,42,.16);background:#fff;color:#3f3f46}
+  html[data-theme="light"] .badge.live{color:#15803d;border-color:rgba(21,128,61,.35);background:rgba(21,128,61,.07)}
+  html[data-theme="light"] .feature .shot{border-bottom-color:rgba(15,23,42,.1)}
+  html[data-theme="light"] .step .bar{background:rgba(15,23,42,.08)}
+  /* buttons and icon buttons */
+  html[data-theme="light"] .btn-ghost,html[data-theme="light"] .icon-btn{background:#fff;border-color:rgba(15,23,42,.16);
+    box-shadow:0 1px 2px rgba(15,23,42,.06)}
+  html[data-theme="light"] .btn-ghost:hover,html[data-theme="light"] .icon-btn:hover{border-color:rgba(15,23,42,.32)}
+  /* orb tags read as crisp white chips */
+  html[data-theme="light"] .orb .tag{background:#fff;border-color:rgba(15,23,42,.14);color:#3f3f46;box-shadow:0 4px 14px -8px rgba(15,23,42,.3)}
+  html[data-theme="light"] .orb .tag b{color:#0a0a0b}
+  /* contact band: a white panel with a defined edge */
+  html[data-theme="light"] .has-bg .band{background:radial-gradient(700px 300px at 50% -20%,color-mix(in srgb,var(--g1) 10%,transparent),transparent 70%),#fff;
+    border-color:rgba(15,23,42,.12);box-shadow:0 1px 2px rgba(15,23,42,.05),0 24px 60px -30px rgba(15,23,42,.28)}
+  /* nav bar, mobile menu and footer */
+  html[data-theme="light"] header.nav.stuck{background-color:rgba(255,255,255,.88);box-shadow:inset 0 -1px 0 rgba(15,23,42,.1),0 8px 24px -18px rgba(15,23,42,.25)}
+  html[data-theme="light"] .mnav{background:#fff;border-color:rgba(15,23,42,.14)}
+  html[data-theme="light"] footer{border-top-color:rgba(15,23,42,.1);background:rgba(255,255,255,.7)}
+  /* section eyebrows: a touch darker for contrast on white */
+  html[data-theme="light"] .eyebrow{color:#52525b}
   /* preview-only style switcher (?lab) */
   .lab{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:90;display:flex;gap:4px;padding:5px;border-radius:16px;
     background:color-mix(in srgb,var(--bg) 82%,transparent);border:1px solid var(--line-strong);box-shadow:var(--shadow);
@@ -320,7 +357,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
 <header class="nav" id="nav">
   <div class="nav-inner">
     <a href="#top" class="brand" aria-label="Gensolve home">
-      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><defs><linearGradient id="lg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8b6cff"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#5eead4"/></linearGradient></defs><path d="M40.5 12.6A21 21 0 1 0 52.4 37" stroke="url(#lg)" stroke-width="4.6" stroke-linecap="round"/><path d="M26 39.6A9.5 9.5 0 1 1 41.2 30" stroke="url(#lg)" stroke-width="4.6" stroke-linecap="round"/><circle cx="47.6" cy="17.4" r="3.6" fill="#5eead4"/></svg>
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><defs><linearGradient id="lg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8b6cff"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#5eead4"/></linearGradient></defs><g stroke="url(#lg)" stroke-linecap="round" stroke-linejoin="round"><path d="M32 13 50 45H14Z" stroke-width="4"/><path d="M32 34 32 13M32 34 50 45M32 34 14 45" stroke-width="2.4" opacity=".6"/></g><circle cx="32" cy="13" r="5" fill="#8b6cff"/><circle cx="50" cy="45" r="5" fill="#5eead4"/><circle cx="14" cy="45" r="5" fill="#22d3ee"/><circle cx="32" cy="34" r="4.2" fill="currentColor"/></svg>
       Gensolve
     </a>
     <nav class="nav-links" aria-label="Main">
@@ -371,7 +408,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
             <svg class="o2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-opacity=".16" stroke-dasharray="4 3"/><circle cx="50" cy="4" r="2" fill="#5eead4"/></svg>
           </div>
           <div class="ring"></div>
-          <div class="core"><svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="cg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8b6cff"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#5eead4"/></linearGradient></defs><path d="M40.5 12.6A21 21 0 1 0 52.4 37" stroke="url(#cg)" stroke-width="4.6" stroke-linecap="round"/><path d="M26 39.6A9.5 9.5 0 1 1 41.2 30" stroke="url(#cg)" stroke-width="4.6" stroke-linecap="round"/><circle cx="47.6" cy="17.4" r="3.6" fill="#5eead4"/></svg></div>
+          <div class="core"><svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="cg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8b6cff"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#5eead4"/></linearGradient></defs><g stroke="url(#cg)" stroke-linecap="round" stroke-linejoin="round"><path d="M32 13 50 45H14Z" stroke-width="4"/><path d="M32 34 32 13M32 34 50 45M32 34 14 45" stroke-width="2.4" opacity=".6"/></g><circle cx="32" cy="13" r="5" fill="#8b6cff"/><circle cx="50" cy="45" r="5" fill="#5eead4"/><circle cx="14" cy="45" r="5" fill="#22d3ee"/><circle cx="32" cy="34" r="4.2" fill="currentColor"/></svg></div>
           <span class="tag t1"><b>AI</b> &amp; machine learning</span>
           <span class="tag t2"><b>Web</b> &amp; app development</span>
           <span class="tag t3"><b>Software</b> engineering</span>
@@ -529,7 +566,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
 <footer>
   <div class="wrap foot">
     <div>
-      <a href="#top" class="brand"><svg viewBox="0 0 64 64" fill="none" aria-hidden="true" style="width:26px;height:26px"><path d="M40.5 12.6A21 21 0 1 0 52.4 37" stroke="url(#lg)" stroke-width="4.6" stroke-linecap="round"/><path d="M26 39.6A9.5 9.5 0 1 1 41.2 30" stroke="url(#lg)" stroke-width="4.6" stroke-linecap="round"/><circle cx="47.6" cy="17.4" r="3.6" fill="#5eead4"/></svg>Gensolve</a>
+      <a href="#top" class="brand"><svg viewBox="0 0 64 64" fill="none" aria-hidden="true" style="width:26px;height:26px"><g stroke="url(#lg)" stroke-linecap="round" stroke-linejoin="round"><path d="M32 13 50 45H14Z" stroke-width="4"/><path d="M32 34 32 13M32 34 50 45M32 34 14 45" stroke-width="2.4" opacity=".6"/></g><circle cx="32" cy="13" r="5" fill="#8b6cff"/><circle cx="50" cy="45" r="5" fill="#5eead4"/><circle cx="14" cy="45" r="5" fill="#22d3ee"/><circle cx="32" cy="34" r="4.2" fill="currentColor"/></svg>Gensolve</a>
       <p style="margin-top:10px">Generational problems. Generative ideas.</p>
     </div>
     <nav aria-label="Footer">

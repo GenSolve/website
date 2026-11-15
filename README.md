@@ -30,7 +30,7 @@ NewVis site locally the product link works end to end. On the live site they poi
 | ---- | ---------- |
 | `index.html` | The whole site: markup, styles and script in one file. |
 | `404.html` | Not-found page. |
-| `static/favicon.svg` | The Gensolve "G" mark (also used as the logo). |
+| `static/favicon.svg` | The Gensolve network mark: three idea-nodes joined around a core (also used as the logo). |
 | `static/apple-touch-icon.png` | iPhone home-screen icon. |
 | `static/og-image.jpg` | Image shown when the link is shared (WhatsApp, LinkedIn, Slack, X). |
 | `static/newvis-preview.jpg` | NewVis screenshot on the product card. |
