@@ -360,6 +360,8 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
     -webkit-background-clip:text;background-clip:text;color:transparent;
     animation:wordUp .95s .34s var(--ease) backwards,gradSweep 1.9s .55s var(--ease) backwards}
   .hero h1 .gw ~ .gw{animation-delay:.43s,.68s}
+  /* the sweep repaints text every frame; touch devices skip it and keep just the rise */
+  @media (hover:none),(max-width:760px){.hero h1 .gw{animation:wordUp .95s .34s var(--ease) backwards}.hero h1 .gw ~ .gw{animation-delay:.43s}}
   @keyframes wordUp{from{opacity:0;transform:translate3d(0,.5em,0)}}
   @keyframes gradSweep{from{background-position:100% 0}}
 
@@ -615,7 +617,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
         <h2 style="margin-top:16px">Have a generational problem?</h2>
         <p>Whether it's a product idea, a partnership or something you'd like built, we'd like to hear about it.</p>
         <div class="row">
-          <a class="btn btn-primary" id="mailBtn" href="mailto:newvis.team@gmail.com?subject=Hello%20Gensolve">Email us
+          <a class="btn btn-primary" id="mailBtn" href="mailto:gensolve.team@gmail.com?subject=Hello%20Gensolve">Email us
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg></a>
           <a class="btn btn-ghost" data-newvis href="https://newvis.gensolve.in/">See NewVis AI</a>
         </div>
