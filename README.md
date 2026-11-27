@@ -20,7 +20,6 @@ static file server and open it in a browser.
 | **Git** | any recent | `git --version` | <https://git-scm.com/downloads> |
 | **Python** | 3.8 or newer | `python --version` (or `python3 --version`) | <https://www.python.org/downloads/> |
 | **A modern browser** | Chrome, Edge, Firefox or Safari from the last 2 years | — | — |
-| **Access to this repo** | — | You can open <https://github.com/GenSolve/website> | Ask a GenSolve org admin |
 
 Notes:
 
@@ -29,9 +28,9 @@ Notes:
   *Settings → Apps → Advanced app settings → App execution aliases*, or use `py` instead of `python`.
 - **macOS / Linux:** Python 3 is usually already installed as `python3`. Use `python3` wherever
   this guide says `python`.
-- **Repo access:** the repo is private. Cloning over HTTPS will ask you to sign in to GitHub
-  (Git Credential Manager opens a browser window on Windows and macOS). If you use SSH keys,
-  clone with `git@github.com:GenSolve/website.git` instead.
+- **Repo access:** the repo is public, so anyone can clone it. To push changes you need to be a
+  member of the GenSolve organisation on GitHub (ask an org owner). If you use SSH keys, clone with
+  `git@github.com:GenSolve/gensolve-website.git` instead.
 - **Browser:** the animated background uses WebGL. If WebGL is off or unavailable, the site still
   works with a plain background.
 
@@ -40,8 +39,8 @@ Notes:
 1. Get the code (first time only):
 
    ```bash
-   git clone https://github.com/GenSolve/website.git
-   cd website
+   git clone https://github.com/GenSolve/gensolve-website.git
+   cd gensolve-website
    ```
 
    Already cloned? Get the latest instead:
@@ -50,7 +49,7 @@ Notes:
    git pull
    ```
 
-2. Start a local server from inside the `website` folder:
+2. Start a local server from inside the `gensolve-website` folder:
 
    ```bash
    python -m http.server 8100
@@ -115,7 +114,7 @@ NewVis site locally the product link works end to end. On the live site they poi
 | ------- | --- |
 | `python` is not recognised | Reinstall Python with "Add to PATH" ticked, or use `py` (Windows) or `python3` (macOS/Linux). |
 | `Address already in use` / `OSError: [Errno 98]` / `[WinError 10048]` | Port 8100 is taken. Use another port, e.g. `python -m http.server 8200`, and open `http://localhost:8200`. |
-| `git clone` says *Repository not found* | You're not signed in, or don't have access yet. Ask a GenSolve org admin to add you. |
+| `git clone` says *Repository not found* | Check the address: the repo is `GenSolve/gensolve-website` (it used to be `GenSolve/website`). |
 | You changed a file but the page looks the same | Hard refresh: `Ctrl + Shift + R` (Windows/Linux) or `Cmd + Shift + R` (macOS). |
 | The background is plain or missing | WebGL is off. In Chrome, check `chrome://gpu`; turning on *Use graphics acceleration when available* in the browser settings usually fixes it. |
 | The site doesn't animate at all | Your device has *Reduce motion* turned on. That's intended: the site respects it. |
