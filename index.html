@@ -24,6 +24,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"Gensolve","url":"https://gensolve.in/","logo":"https://gensolve.in/static/favicon.svg","description":"Solving generational problems with generative ideas.","brand":[{"@type":"Brand","name":"NewVis AI"}]}
 </script>
+<script>/* NEWVIS SWITCH: set to true once https://newvis.gensolve.in/ is online */
+var NEWVIS_LIVE = false;
+if (!NEWVIS_LIVE) document.documentElement.classList.add('nv-soon');</script>
 <script>/* light by default; dark only if the visitor picked it. Runs before first paint so there is no flash */
 var gsDark=false;try{gsDark=localStorage.getItem('gs_theme')==='dark'}catch(e){}
 if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';else document.documentElement.dataset.theme='light';</script>
@@ -398,6 +401,9 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
 
   /* theme switch: the new theme spreads out from the toggle (driven from script) */
   ::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+  /* NewVis "launching soon" state (see NEWVIS_LIVE at the top) */
+  html.nv-soon .nv-on,html:not(.nv-soon) .nv-off{display:none !important}
+  html.nv-soon .feature{cursor:default}
 
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
@@ -451,11 +457,11 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
         <h1><span class="line"><span class="w">Generational</span> <span class="w">problems.</span></span><span class="line"><span class="w gw">Generative</span> <span class="w gw">ideas.</span></span></h1>
         <p class="lead intro">Gensolve builds AI-first products and software to solve problems that outlast a single product cycle — across AI, web, software and app development.</p>
         <div class="hero-cta intro">
-          <a class="btn btn-primary" data-newvis href="https://newvis.gensolve.in/">Explore NewVis AI
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg></a>
+          <a class="btn btn-primary" data-newvis href="https://newvis.gensolve.in/"><span class="nv-on">Explore NewVis AI</span><span class="nv-off">NewVis AI · launching soon</span>
+            <span class="nv-on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg></span></a>
           <a class="btn btn-ghost" href="#build">What we build</a>
         </div>
-        <p class="hero-note intro">Our first product, <a data-newvis href="https://newvis.gensolve.in/">NewVis AI</a>, is live. More are on the way.</p>
+        <p class="hero-note intro">Our first product, <a data-newvis href="https://newvis.gensolve.in/">NewVis AI</a>, <span class="nv-on">is live</span><span class="nv-off">is launching soon</span>. More are on the way.</p>
       </div>
       <div class="orb-wrap">
         <div class="orb" id="orb" aria-hidden="true">
@@ -555,10 +561,10 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
         <a class="card feature reveal" data-newvis href="https://newvis.gensolve.in/" aria-label="NewVis AI — visit the product site">
           <div class="shot"><img src="/static/newvis-preview.jpg" alt="The NewVis AI website: a live analytics dashboard tracking people across cameras" width="1200" height="630" loading="lazy" decoding="async"></div>
           <div class="body">
-            <div class="badges"><span class="badge live">Live</span><span class="badge">AI · Computer vision</span></div>
+            <div class="badges"><span class="badge live nv-on">Live</span><span class="badge nv-off">Launching soon</span><span class="badge">AI · Computer vision</span></div>
             <h3>NewVis AI</h3>
             <p>AI video analytics that turns the CCTV cameras you already own into a real-time safety system: spotting falls, intrusions and loitering the moment they happen.</p>
-            <span class="btn btn-primary btn-sm">Visit NewVis AI
+            <span class="btn btn-primary btn-sm nv-on">Visit NewVis AI
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg></span>
           </div>
         </a>
@@ -647,9 +653,15 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.getElementById('yr').textContent = new Date().getFullYear();
 
-  // NewVis lives on its own site; when previewing locally, point at the local NewVis server instead
+  // NewVis lives on its own site. Until it's online (NEWVIS_LIVE, top of the page) its links scroll to the
+  // product card instead, and the card itself isn't a link. When previewing locally, links go to the local NewVis server.
+  var nvSoon = root.classList.contains('nv-soon');
   var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || location.protocol === 'file:';
-  if (local) document.querySelectorAll('[data-newvis]').forEach(function(a){ a.href = 'http://localhost:8000/'; });
+  document.querySelectorAll('[data-newvis]').forEach(function(a){
+    if (!nvSoon) { if (local) a.href = 'http://localhost:8000/'; return; }
+    if (a.classList.contains('feature')) { a.removeAttribute('href'); a.setAttribute('aria-label', 'NewVis AI, launching soon'); }
+    else a.href = '#products';
+  });
 
   // sticky nav
   var nav = document.getElementById('nav');
@@ -736,7 +748,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
     });
     // the NewVis card leans toward the cursor
     var card = document.querySelector('.feature');
-    if (card) follow(card, function(px, py){
+    if (card && !nvSoon) follow(card, function(px, py){
       card.classList.add('tilt');
       card.style.transform = 'perspective(1100px) rotateX(' + (-py * 5).toFixed(2) + 'deg) rotateY(' + (px * 6).toFixed(2) + 'deg) translate3d(0,-4px,0)';
     }, function(){ card.classList.remove('tilt'); card.style.transform = ''; });

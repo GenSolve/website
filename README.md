@@ -138,6 +138,9 @@ NewVis site locally the product link works end to end. On the live site they poi
   `WHAT WE BUILD`, `PRODUCTS`, `HOW WE WORK`, `CONTACT`).
 - **Adding a product:** in the `PRODUCTS` section, replace one of the "Coming soon" cards with a
   card like the NewVis one.
+- **NewVis launch:** until `newvis.gensolve.in` is online, the site shows NewVis as "launching soon"
+  and its links scroll to the NewVis card. When NewVis goes live, set `var NEWVIS_LIVE = true;` near
+  the top of `index.html`; every NewVis link, the "Live" badge and the "Visit" button come back.
 - **Contact email:** the "Email us" button (`id="mailBtn"`) uses a `mailto:` link near the bottom of `index.html`.
 - **Colours and fonts:** all design tokens are CSS variables at the top of the `<style>` block
   (`:root` for dark, `html[data-theme="light"]` for light). The brand gradient is `--grad`.
