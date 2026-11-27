@@ -119,7 +119,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
     padding:14px 22px;border-radius:14px;border:1px solid transparent;cursor:pointer;white-space:nowrap;
     transition:transform .4s var(--spring),box-shadow .4s var(--ease),border-color .3s ease,background-color .3s ease}
   .btn svg{width:17px;height:17px;transition:transform .4s var(--spring)}
-  .btn:hover svg{transform:translate(2px,-2px)}
+  .btn:hover svg{transform:translate(3px,-3px)}
   .btn:active{transform:translateY(1px) scale(.98);transition-duration:.08s}
   .btn-primary{background:var(--btn-bg);color:var(--btn-ink);box-shadow:0 10px 30px -14px color-mix(in srgb,var(--g1) 70%,transparent)}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px color-mix(in srgb,var(--g2) 75%,transparent)}
@@ -250,7 +250,6 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
   @keyframes drift2{to{transform:translate3d(-24%,10%,0) scale(.9)}}
   @keyframes drift3{to{transform:translate3d(10%,-26%,0) scale(1.1)}}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .orb.paused *{animation-play-state:paused !important}
   @media(max-width:520px){.orb .tag{font-size:11px;padding:6px 10px}.orb .t2{right:-2%}.orb .t6{left:-2%}}
   @media(max-width:400px){.orb .t5,.orb .t6{display:none}}
 
@@ -309,8 +308,8 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
   .step .bar{height:2px;border-radius:2px;background:var(--line);margin-top:24px;overflow:hidden}
   .step .bar i{display:block;height:100%;width:100%;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform 1.2s var(--ease)}
   .step.in .bar i{transform:none}
-  .step:nth-child(2) .bar i{transition-delay:.15s}
-  .step:nth-child(3) .bar i{transition-delay:.3s}
+  .step:nth-child(3) .bar i{transition-delay:.15s}
+  .step:nth-child(4) .bar i{transition-delay:.3s}
 
   /* ---------- contact band ---------- */
   .band{position:relative;overflow:hidden;padding:72px 48px;text-align:center;border-radius:28px;border:1px solid var(--line-strong);
@@ -338,13 +337,71 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
   @keyframes introUp{to{opacity:1;transform:none}}
   @keyframes orbIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
 
-  ::view-transition-old(root),::view-transition-new(root){animation-duration:.45s;animation-timing-function:cubic-bezier(.16,1,.3,1)}
+  /* ---------- logo: draws itself on load, nodes lift on hover ---------- */
+  .mark path{stroke-dasharray:1;animation:markDraw 1s .15s var(--ease) backwards}
+  .mark path + path{animation-delay:.6s}
+  .mark{transition:transform .5s var(--spring)}
+  .mark circle{animation:markPop .5s var(--ease) backwards}
+  .mark circle:nth-of-type(1){animation-delay:.75s}
+  .mark circle:nth-of-type(2){animation-delay:.87s}
+  .mark circle:nth-of-type(3){animation-delay:.99s}
+  .mark circle:nth-of-type(4){animation-delay:1.15s}
+  .orb .core .mark path{animation-delay:.7s}.orb .core .mark path + path{animation-delay:1.15s}
+  .orb .core .mark circle:nth-of-type(1){animation-delay:1.3s}.orb .core .mark circle:nth-of-type(2){animation-delay:1.42s}
+  .orb .core .mark circle:nth-of-type(3){animation-delay:1.54s}.orb .core .mark circle:nth-of-type(4){animation-delay:1.7s}
+  .brand:hover .mark{transform:scale(1.14) rotate(-8deg)}
+  @keyframes markDraw{from{stroke-dashoffset:1}}
+  @keyframes markPop{from{opacity:0}}
+
+  /* ---------- headline: words rise in one by one, the gradient sweeps across once ---------- */
+  .hero h1 .w{display:inline-block;padding-bottom:.06em;animation:wordUp .95s .12s var(--ease) backwards}
+  .hero h1 .w ~ .w{animation-delay:.21s}
+  .hero h1 .gw{background:linear-gradient(100deg,var(--g1),var(--g2),var(--g3),var(--g2),var(--g1)) 0 0/200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:wordUp .95s .34s var(--ease) backwards,gradSweep 1.9s .55s var(--ease) backwards}
+  .hero h1 .gw ~ .gw{animation-delay:.43s,.68s}
+  @keyframes wordUp{from{opacity:0;transform:translate3d(0,.5em,0)}}
+  @keyframes gradSweep{from{background-position:100% 0}}
+
+  /* ---------- scrolling strip of what we build ---------- */
+  .marquee{overflow:hidden;contain:content;padding:17px 0;border-block:1px solid var(--line);background:color-mix(in srgb,var(--bg) 55%,transparent);
+    -webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+  html[data-theme="light"] .marquee{background:rgba(255,255,255,.82);border-color:rgba(15,23,42,.1)}
+  .mq{display:flex;width:max-content;animation:mq 52s linear infinite}
+  .mq span{display:inline-flex;align-items:center;gap:30px;padding-right:30px;font-family:var(--font-head);font-weight:600;font-size:13.5px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+  .mq span::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--grad)}
+  .paused,.paused *,.paused *::before,.paused *::after{animation-play-state:paused !important}
+  @keyframes mq{to{transform:translate3d(-50%,0,0)}}
+
+  /* ---------- product card: leans toward the cursor, a sheen passes over the screenshot ---------- */
+  .feature.tilt{transition:transform .18s ease-out,border-color .35s ease,box-shadow .5s var(--ease)}
+  .feature .shot::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.2) 50%,transparent 62%);
+    transform:translate3d(-100%,0,0);transition:transform 1s var(--ease)}
+  .feature:hover .shot::after{transform:translate3d(100%,0,0)}
+
+  /* ---------- how we work: a line draws through the three steps ---------- */
+  .track{grid-column:1/-1;position:relative;height:14px;margin-bottom:4px;--w:calc((100% - 32px)/3)}
+  .track i{position:absolute;left:30px;right:0;top:6px;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,var(--g1),var(--g2) 40%,var(--g3) 72%,transparent);
+    transform:scaleX(0);transform-origin:left;transition:transform 1.9s .2s var(--ease)}
+  .track b{position:absolute;top:0;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2.5px solid var(--g2);
+    transform:scale(0);transition:transform .6s var(--spring)}
+  .track b:nth-of-type(1){left:23px;border-color:var(--g1);transition-delay:.2s}
+  .track b:nth-of-type(2){left:calc(var(--w) + 39px);transition-delay:.8s}
+  .track b:nth-of-type(3){left:calc(var(--w)*2 + 55px);border-color:var(--g3);transition-delay:1.4s}
+  .track.in i,.track.in b{transform:none}
+  @media(max-width:900px){.track{display:none}}
+
+  /* theme switch: the new theme spreads out from the toggle (driven from script) */
+  ::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
 
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
     *,*::before,*::after{animation:none !important;transition:none !important}
     .reveal,.hero .intro,.hero .orb-wrap{opacity:1;transform:none}
-    .step .bar i{transform:none}
+    .step .bar i,.track i,.track b{transform:none}
   }
 </style>
 </head>
@@ -357,7 +414,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
 <header class="nav" id="nav">
   <div class="nav-inner">
     <a href="#top" class="brand" aria-label="Gensolve home">
-      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><defs><linearGradient id="lg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8b6cff"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#5eead4"/></linearGradient></defs><g stroke="url(#lg)" stroke-linecap="round" stroke-linejoin="round"><path d="M32 13 50 45H14Z" stroke-width="4"/><path d="M32 34 32 13M32 34 50 45M32 34 14 45" stroke-width="2.4" opacity=".6"/></g><circle cx="32" cy="13" r="5" fill="#8b6cff"/><circle cx="50" cy="45" r="5" fill="#5eead4"/><circle cx="14" cy="45" r="5" fill="#22d3ee"/><circle cx="32" cy="34" r="4.2" fill="currentColor"/></svg>
+      <svg class="mark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><defs><linearGradient id="lg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8b6cff"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#5eead4"/></linearGradient></defs><g stroke="url(#lg)" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M32 13 50 45H14Z" stroke-width="4"/><path pathLength="1" d="M32 34 32 13M32 34 50 45M32 34 14 45" stroke-width="2.4" opacity=".6"/></g><circle cx="32" cy="13" r="5" fill="#8b6cff"/><circle cx="50" cy="45" r="5" fill="#5eead4"/><circle cx="14" cy="45" r="5" fill="#22d3ee"/><circle cx="32" cy="34" r="4.2" fill="currentColor"/></svg>
       Gensolve
     </a>
     <nav class="nav-links" aria-label="Main">
@@ -389,7 +446,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
     <div class="wrap hero-grid">
       <div>
         <span class="eyebrow intro">Gensolve · Technology company</span>
-        <h1 class="intro"><span class="line">Generational problems.</span><span class="line grad">Generative ideas.</span></h1>
+        <h1><span class="line"><span class="w">Generational</span> <span class="w">problems.</span></span><span class="line"><span class="w gw">Generative</span> <span class="w gw">ideas.</span></span></h1>
         <p class="lead intro">Gensolve builds AI-first products and software to solve problems that outlast a single product cycle — across AI, web, software and app development.</p>
         <div class="hero-cta intro">
           <a class="btn btn-primary" data-newvis href="https://newvis.gensolve.in/">Explore NewVis AI
@@ -408,7 +465,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
             <svg class="o2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-opacity=".16" stroke-dasharray="4 3"/><circle cx="50" cy="4" r="2" fill="#5eead4"/></svg>
           </div>
           <div class="ring"></div>
-          <div class="core"><svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="cg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8b6cff"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#5eead4"/></linearGradient></defs><g stroke="url(#cg)" stroke-linecap="round" stroke-linejoin="round"><path d="M32 13 50 45H14Z" stroke-width="4"/><path d="M32 34 32 13M32 34 50 45M32 34 14 45" stroke-width="2.4" opacity=".6"/></g><circle cx="32" cy="13" r="5" fill="#8b6cff"/><circle cx="50" cy="45" r="5" fill="#5eead4"/><circle cx="14" cy="45" r="5" fill="#22d3ee"/><circle cx="32" cy="34" r="4.2" fill="currentColor"/></svg></div>
+          <div class="core"><svg class="mark" viewBox="0 0 64 64" fill="none"><defs><linearGradient id="cg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8b6cff"/><stop offset=".55" stop-color="#22d3ee"/><stop offset="1" stop-color="#5eead4"/></linearGradient></defs><g stroke="url(#cg)" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M32 13 50 45H14Z" stroke-width="4"/><path pathLength="1" d="M32 34 32 13M32 34 50 45M32 34 14 45" stroke-width="2.4" opacity=".6"/></g><circle cx="32" cy="13" r="5" fill="#8b6cff"/><circle cx="50" cy="45" r="5" fill="#5eead4"/><circle cx="14" cy="45" r="5" fill="#22d3ee"/><circle cx="32" cy="34" r="4.2" fill="currentColor"/></svg></div>
           <span class="tag t1"><b>AI</b> &amp; machine learning</span>
           <span class="tag t2"><b>Web</b> &amp; app development</span>
           <span class="tag t3"><b>Software</b> engineering</span>
@@ -419,6 +476,9 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
       </div>
     </div>
   </section>
+
+  <!-- scrolling strip (decorative: the same areas are listed in "What we build") -->
+  <div class="marquee" id="marquee" aria-hidden="true"><div class="mq"><span>AI &amp; machine learning</span><span>Computer vision</span><span>Generative AI</span><span>Web development</span><span>App development</span><span>Software engineering</span><span>Edge AI</span><span>Multi-camera tracking</span><span>AI &amp; machine learning</span><span>Computer vision</span><span>Generative AI</span><span>Web development</span><span>App development</span><span>Software engineering</span><span>Edge AI</span><span>Multi-camera tracking</span></div></div>
 
   <!-- ================= THE NAME ================= -->
   <section id="name">
@@ -524,6 +584,7 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
         <h2>From a lasting problem to a working product.</h2>
       </div>
       <div class="steps">
+        <div class="track reveal" aria-hidden="true"><i></i><b></b><b></b><b></b></div>
         <div class="card step reveal">
           <div class="n">01</div>
           <h3>Start from the problem</h3>
@@ -613,11 +674,11 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
   }, {threshold:.14, rootMargin:'0px 0px -6% 0px'});
   document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 
-  // the generative orb pauses while off screen or in a hidden tab
-  var orb = document.getElementById('orb'), orbVisible = true;
-  var syncOrb = function(){ orb.classList.toggle('paused', !orbVisible || document.hidden); };
-  new IntersectionObserver(function(es){ orbVisible = es[0].isIntersecting; syncOrb(); }).observe(orb);
-  document.addEventListener('visibilitychange', syncOrb);
+  // everything that loops forever (orb, scrolling strip, the "Live" dot) stops while it is off screen
+  var loopIO = new IntersectionObserver(function(es){
+    es.forEach(function(e){ e.target.classList.toggle('paused', !e.isIntersecting); });
+  }, {rootMargin:'80px 0px'});
+  document.querySelectorAll('#orb, #marquee, .feature').forEach(function(el){ loopIO.observe(el); });
 
   // light / dark theme
   var btn = document.getElementById('themeToggle'), meta = document.querySelector('meta[name="theme-color"]');
@@ -635,8 +696,49 @@ if(gsDark)document.querySelector('meta[name="theme-color"]').content='#0b0e1c';e
       try { localStorage.setItem('gs_theme', next); } catch (e) {}
       sync();
     };
-    if (document.startViewTransition && !reduced) document.startViewTransition(apply); else apply();
+    if (!document.startViewTransition || reduced) { apply(); return; }
+    // the new theme spreads out as a circle from the toggle
+    var r = btn.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    var rad = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(apply).ready.then(function(){
+      root.animate({clipPath:['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + rad + 'px at ' + x + 'px ' + y + 'px)']},
+        {duration:700, easing:'cubic-bezier(.3,0,.2,1)', pseudoElement:'::view-transition-new(root)'});
+    }).catch(function(){});
   });
+
+  // pointer effects: desktop mouse only, and never under "reduce motion"
+  if (!reduced && window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
+    // each element is measured once per hover (and again after a scroll), never on every mouse move
+    var follow = function(el, paint, reset){
+      var rect = null, raf = 0, x = 0, y = 0;
+      var drop = function(){ rect = null; };
+      el.addEventListener('pointerenter', function(){ rect = el.getBoundingClientRect(); window.addEventListener('scroll', drop, {passive:true}); });
+      el.addEventListener('pointermove', function(e){
+        x = e.clientX; y = e.clientY;
+        if (raf) return;
+        raf = requestAnimationFrame(function(){
+          raf = 0;
+          if (!rect) { el.style.transform = ''; rect = el.getBoundingClientRect(); }
+          paint((x - rect.left) / rect.width - .5, (y - rect.top) / rect.height - .5);
+        });
+      });
+      el.addEventListener('pointerleave', function(){
+        if (raf) { cancelAnimationFrame(raf); raf = 0; }
+        window.removeEventListener('scroll', drop); rect = null; reset();
+      });
+    };
+    // main buttons pull slightly toward the cursor
+    document.querySelectorAll('a.btn').forEach(function(b){
+      follow(b, function(px, py){ b.style.transform = 'translate3d(' + (px * 10).toFixed(1) + 'px,' + (py * 8 - 2).toFixed(1) + 'px,0)'; },
+        function(){ b.style.transform = ''; });
+    });
+    // the NewVis card leans toward the cursor
+    var card = document.querySelector('.feature');
+    if (card) follow(card, function(px, py){
+      card.classList.add('tilt');
+      card.style.transform = 'perspective(1100px) rotateX(' + (-py * 5).toFixed(2) + 'deg) rotateY(' + (px * 6).toFixed(2) + 'deg) translate3d(0,-4px,0)';
+    }, function(){ card.classList.remove('tilt'); card.style.transform = ''; });
+  }
 })();
 </script>
 <script>

@@ -147,9 +147,13 @@ NewVis site locally the product link works end to end. On the live site they poi
 - Light theme by default, dark on request (sun/moon button; the choice is remembered).
 - Live WebGL background (`static/hero-bg.js`), one per theme: **dot-matrix** in light, **liquid** in dark.
   Other styles can be previewed with `?bg=aurora|contour|mesh|network|ribbons|beams` or `?lab`.
-- Only `transform` and `opacity` are animated, so motion stays smooth on phones. The hero orb
-  pauses when it's off screen or the tab is hidden, and all motion is off for visitors who turn on
+- Continuous motion only animates `transform` and `opacity`, so it stays smooth on phones. The
+  only exceptions are short one-off effects: the logo drawing itself and the headline gradient
+  sweep on load, and the circular theme switch. The hero orb and the scrolling strip pause when
+  they're off screen or the tab is hidden, and all motion is off for visitors who turn on
   "reduce motion".
+- Pointer effects (buttons that pull toward the cursor, the tilting NewVis card) only run on
+  devices with a mouse.
 - Fonts: Space Grotesk (headings) and Archivo (body), self-hosted in `static/fonts/` (both are
   open-source, SIL Open Font License) and preloaded so text appears fast.
 
